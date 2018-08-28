@@ -16,4 +16,4 @@ node_modules
 *.map
 
 /index.js
-/index.d.js
+/index.d.ts
