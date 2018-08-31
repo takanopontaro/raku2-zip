@@ -21,7 +21,7 @@ export default (cwd: string, paths: string[], dest: string, cb?: TCallback) => {
 
     list = list.sort().filter((path, i) => {
       if (!path.endsWith('/')) return true;
-      const next = paths[i + 1];
+      const next = list[i + 1];
       return next && next.indexOf(path) === 0 ? false : true;
     });
 
