@@ -4,23 +4,28 @@ import ndPath from 'path';
 import { Transform } from 'stream';
 import yazl from 'yazl';
 
-export type TInfo = {
+export type ProgressData = {
   path: string;
-  byte: number;
+  completedSize: number;
   done: boolean;
 };
 
-export type TCallback = (info: TInfo) => void;
+export type ProgressCallback = (data: ProgressData) => void;
 
-export default (cwd: string, paths: string[], dest: string, cb?: TCallback) => {
-  return new Promise<TInfo>(async resolve => {
-    let list = await globby(paths, {
+module.exports = (
+  cwd: string,
+  src: string | string[],
+  dest: string,
+  cb?: ProgressCallback
+) => {
+  return new Promise<ProgressData>(async resolve => {
+    let list = await globby(src, {
       markDirectories: true,
       onlyFiles: false
     });
 
     list = list.sort().filter((path, i) => {
-      if (!path.endsWith('/')) return true;
+      if (!path.endsWith(ndPath.sep)) return true;
       const next = list[i + 1];
       return next && next.indexOf(path) === 0 ? false : true;
     });
@@ -29,13 +34,13 @@ export default (cwd: string, paths: string[], dest: string, cb?: TCallback) => {
 
     list.forEach(path => {
       const relPath = ndPath.relative(cwd, path);
-      if (!path.endsWith('/')) zip.addFile(path, relPath);
+      if (!path.endsWith(ndPath.sep)) zip.addFile(path, relPath);
       else zip.addEmptyDirectory(relPath);
     });
 
-    const info: TInfo = {
+    const data: ProgressData = {
       path: dest,
-      byte: 0,
+      completedSize: 0,
       done: false
     };
 
@@ -43,8 +48,8 @@ export default (cwd: string, paths: string[], dest: string, cb?: TCallback) => {
     const writeStream = fs.createWriteStream(dest);
 
     filter._transform = (chunk, encoding, callback) => {
-      info.byte += chunk.length;
-      cb && cb(info);
+      data.completedSize += chunk.length;
+      if (cb) cb(data);
       callback(null, chunk);
     };
 
@@ -52,9 +57,9 @@ export default (cwd: string, paths: string[], dest: string, cb?: TCallback) => {
       .pipe(filter)
       .pipe(writeStream)
       .on('close', () => {
-        info.done = true;
-        cb && cb(info);
-        resolve(info);
+        data.done = true;
+        if (cb) cb(data);
+        resolve(data);
       });
 
     zip.end();

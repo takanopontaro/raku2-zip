@@ -1,6 +1,6 @@
 {
   "name": "raku2-zip",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "index.js",
   "types": "index.d.ts",
@@ -8,7 +8,7 @@
     "index.d.ts"
   ],
   "scripts": {
-    "start": "tsc -d -p ."
+    "start": "tsc -p ."
   },
   "repository": {
     "type": "git",
