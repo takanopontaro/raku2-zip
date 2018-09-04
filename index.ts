@@ -4,16 +4,17 @@ import ndPath from 'path';
 import { Transform } from 'stream';
 import yazl from 'yazl';
 
-import { ProgressCallback, ProgressData } from './index.d';
+import { Options, ProgressCallback, ProgressData } from './index.d';
 
 module.exports = (
-  cwd: string,
   src: string | string[],
   dest: string,
+  options?: Options | null,
   cb?: ProgressCallback
 ) => {
   return new Promise<ProgressData>(async resolve => {
     let list = await globby(src, {
+      ...options,
       markDirectories: true,
       onlyFiles: false
     });
@@ -27,6 +28,7 @@ module.exports = (
     const zip = new yazl.ZipFile();
 
     list.forEach(path => {
+      const cwd = (options && options.cwd) || '.';
       const relPath = ndPath.relative(cwd, path);
       if (!path.endsWith(ndPath.sep)) zip.addFile(path, relPath);
       else zip.addEmptyDirectory(relPath);
