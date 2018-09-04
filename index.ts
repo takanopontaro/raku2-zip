@@ -4,13 +4,7 @@ import ndPath from 'path';
 import { Transform } from 'stream';
 import yazl from 'yazl';
 
-export type ProgressData = {
-  path: string;
-  completedSize: number;
-  done: boolean;
-};
-
-export type ProgressCallback = (data: ProgressData) => void;
+import { ProgressCallback, ProgressData } from './index.d';
 
 module.exports = (
   cwd: string,

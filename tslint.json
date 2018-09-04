@@ -9,6 +9,7 @@
     "ordered-imports": [true, { "grouped-imports": true }],
     "object-shorthand-properties-first": false,
     "import-name": false,
-    "variable-name": false
+    "variable-name": false,
+    "function-name": false
   }
 }
