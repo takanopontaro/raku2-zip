@@ -28,10 +28,10 @@ module.exports = (
     const zip = new yazl.ZipFile();
 
     list.forEach(path => {
-      const cwd = (options && options.cwd) || '.';
-      const relPath = ndPath.relative(cwd, path);
-      if (!path.endsWith(ndPath.sep)) zip.addFile(path, relPath);
-      else zip.addEmptyDirectory(relPath);
+      const cwd = (options && options.cwd) || null;
+      const p = cwd ? ndPath.resolve(cwd, path) : path;
+      if (!path.endsWith(ndPath.sep)) zip.addFile(p, path);
+      else zip.addEmptyDirectory(path);
     });
 
     const data: ProgressData = {
