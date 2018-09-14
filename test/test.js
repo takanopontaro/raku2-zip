@@ -4,6 +4,7 @@ const del = require('del');
 const fs = require('fs');
 const mkdir = require('make-dir');
 const path = require('path');
+const unzip = require('raku2-unzip');
 const { promisify } = require('util');
 
 const zip = require('..');
@@ -34,7 +35,7 @@ after(async () => {
 });
 
 afterEach(async () => {
-  await del('dest.zip');
+  await del(['dest.zip', 'dest']);
 });
 
 describe('lib', () => {
@@ -81,7 +82,14 @@ describe('lib', () => {
 describe('main', () => {
   it('zip', async () => {
     await zip('src', 'dest.zip');
-    assert.equal(true, fs.existsSync('dest.zip'));
+    await unzip('dest.zip', 'dest');
+    assert.equal(true, fs.existsSync('dest/dest/src/1.txt'));
+    assert.equal(true, fs.existsSync('dest/dest/src/a/2.txt'));
+    assert.equal(true, fs.existsSync('dest/dest/src/a/empty-dir'));
+    assert.equal(
+      true,
+      fs.existsSync('dest/dest/src/a/ディレクトリ/ファイル.txt')
+    );
   });
 
   it('zip (2)', async () => {
@@ -89,6 +97,9 @@ describe('main', () => {
       ['src/a/ディレクトリ', 'src/a/empty-dir', 'src/a/2.txt'],
       'dest.zip'
     );
-    assert.equal(true, fs.existsSync('dest.zip'));
+    await unzip('dest.zip', 'dest');
+    assert.equal(true, fs.existsSync('dest/dest/ディレクトリ/ファイル.txt'));
+    assert.equal(true, fs.existsSync('dest/dest/empty-dir'));
+    assert.equal(true, fs.existsSync('dest/dest/2.txt'));
   });
 });
